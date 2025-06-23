@@ -1,0 +1,213 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Progress Tracker</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Progress Tracker</h1>
+  <div>
+    <label>New Goal Name: <input type="text" id="newName"></label><br>
+    <label>Target: <input type="number" id="newTarget"></label><br>
+    <label>Category:
+      <select id="newCategory">
+        <option value="Sport">Sport</option>
+        <option value="Work">Work</option>
+        <option value="Personal">Personal</option>
+        <option value="Other">Other</option>
+      </select>
+    </label><br>
+    <button onclick="addGoal()">Add Goal</button>
+  </div>
+  <div id="goalsContainer"></div>
+
+  <div class="utility-buttons">
+    <button onclick="toggleDarkMode()">Toggle Dark Mode</button>
+    <button onclick="exportGoals()">Export Goals</button>
+    <input type="file" accept=".json" onchange="importGoals(event)">
+  </div>
+
+  <script>
+    let goals = [];
+
+    function loadGoals() {
+      const saved = localStorage.getItem('goals');
+      if (saved) {
+        goals = JSON.parse(saved);
+      }
+      renderGoals();
+    }
+
+    function saveGoals() {
+      localStorage.setItem('goals', JSON.stringify(goals));
+    }
+
+    function addGoal() {
+      const name = document.getElementById('newName').value.trim();
+      const target = parseInt(document.getElementById('newTarget').value);
+      const category = document.getElementById('newCategory').value;
+
+      if (!name) {
+        alert('Please enter a goal name.');
+        return;
+      }
+      if (isNaN(target) || target <= 0) {
+        alert('Please enter a valid positive number for the target.');
+        return;
+      }
+
+      goals.push({ name, target, current: 0, category, history: [] });
+      saveGoals();
+      renderGoals();
+      document.getElementById('newName').value = '';
+      document.getElementById('newTarget').value = '';
+    }
+
+    function updateGoal(index) {
+      const progressInput = document.getElementById(`progress-${index}`);
+      const progress = parseInt(progressInput.value);
+      if (!isNaN(progress) && progress !== 0) {
+        goals[index].current += progress;
+        if (goals[index].current > goals[index].target) {
+          goals[index].current = goals[index].target;
+        }
+        goals[index].history.push({ date: new Date().toLocaleString(), value: progress });
+        saveGoals();
+        renderGoals();
+        progressInput.value = '';
+      }
+    }
+
+    function renderGoals() {
+      const container = document.getElementById('goalsContainer');
+      container.innerHTML = '';
+      goals.forEach((goal, index) => {
+        const percentage = (goal.current / goal.target) * 100;
+        const goalDiv = document.createElement('div');
+        goalDiv.className = 'goal';
+        goalDiv.innerHTML = `
+          <h3>${goal.name} (${goal.category})</h3>
+          <p>Progress: ${goal.current} / ${goal.target} (${percentage.toFixed(1)}%)</p>
+          <div class="progress-bar"><div class="progress" style="width: ${percentage}%"></div></div>
+          <label>Add progress: <input type="number" id="progress-${index}"></label>
+          <button onclick="updateGoal(${index})">Update</button>
+          <button onclick="showHistory(${index})">View History</button>
+        `;
+        container.appendChild(goalDiv);
+      });
+    }
+
+    function showHistory(index) {
+      const goal = goals[index];
+      if (goal && goal.history && goal.history.length > 0) {
+        const historyText = goal.history.map(h => `${h.date}: ${h.value}`).join('\n');
+        alert(`History for ${goal.name}:\n${historyText}`);
+      } else {
+        alert('No history available for this goal.');
+      }
+    }
+
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark-mode');
+      localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+    }
+
+    function exportGoals() {
+      const data = JSON.stringify(goals, null, 2);
+      const blob = new Blob([data], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'progress_goals.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importGoals(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const importedData = JSON.parse(e.target.result);
+          if (Array.isArray(importedData)) {
+            goals = importedData;
+            saveGoals();
+            renderGoals();
+            alert('Goals imported successfully!');
+          } else {
+            alert('Invalid JSON file format. Please import a JSON array of goals.');
+          }
+        } catch (error) {
+          alert('Error importing goals: ' + error.message);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // Load goals on page load
+    loadGoals();
+
+    // Load dark mode preference
+    if (localStorage.getItem('darkMode') === 'true') {
+      document.body.classList.add('dark-mode');
+    }
+
+    // Service Worker registration
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(registration => {
+            console.log('Service Worker registered with scope:', registration.scope);
+          })
+          .catch(error => {
+            console.error('Service Worker registration failed:', error);
+          });
+      });
+    }
+  </script>
+</body>
+</html>
