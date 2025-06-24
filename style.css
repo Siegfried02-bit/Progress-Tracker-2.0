@@ -1,0 +1,581 @@
+body {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+  background-color: #f4f4f4;
+  color: #333;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  
+  /* Background Image */
+  background-image: url('il_1080xN.4807685781_4li2.jpg'); /* Your image file */
+  background-size: cover; /* Cover the entire background */
+  background-position: center center; /* Center the image */
+  background-attachment: fixed; /* Keep image fixed when scrolling */
+  background-repeat: no-repeat; /* Do not repeat the image */
+}
+
+body.dark-mode {
+  background-color: #1a1a1a;
+  color: #ffffff;
+}
+
+h1 {
+  color: #333;
+  text-align: center;
+}
+
+body.dark-mode h1 {
+  color: #eee;
+}
+
+h2 {
+    color: #555;
+    margin-top: 25px;
+    margin-bottom: 15px;
+}
+
+body.dark-mode h2 {
+    color: #bbb;
+}
+
+
+.add-goal-section, .filter-sort-section {
+    background-color: #e9e9e9;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+body.dark-mode .add-goal-section, body.dark-mode .filter-sort-section {
+    background-color: #2c2c2c;
+    border-color: #444;
+}
+
+/* Category Management Section */
+#manageCategorySection {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #ddd;
+}
+body.dark-mode #manageCategorySection {
+    border-top-color: #444;
+}
+
+#categoryList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px; /* Space between category items */
+    margin-top: 10px;
+}
+
+.category-list-item {
+    background-color: #e0e0e0;
+    padding: 5px 10px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.9em;
+    color: #444;
+}
+body.dark-mode .category-list-item {
+    background-color: #444;
+    color: #eee;
+}
+
+.delete-category-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 0.8em;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0; /* Prevent shrinking */
+}
+.delete-category-btn:hover {
+    background-color: #c82333;
+}
+body.dark-mode .delete-category-btn {
+    background-color: #a00;
+}
+body.dark-mode .delete-category-btn:hover {
+    background-color: #b00;
+}
+
+
+.goal {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.5s forwards;
+  position: relative; /* Needed for absolute positioning of delete button */
+}
+
+body.dark-mode .goal {
+  background-color: #2c2c2c;
+  border-color: #444;
+  color: #ffffff;
+}
+
+.progress-bar {
+  width: 100%;
+  background-color: #e0e0e0;
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 10px 0;
+}
+
+body.dark-mode .progress-bar {
+  background-color: #444;
+}
+
+.progress {
+  height: 10px;
+  background-color: #4caf50;
+  border-radius: 4px;
+  transition: width 0.3s ease-in-out;
+}
+
+/* Validation styles */
+input.is-invalid, select.is-invalid {
+    border-color: #dc3545; /* Red border */
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+.error-message {
+    color: #dc3545;
+    font-size: 0.85em;
+    margin-top: -5px;
+    margin-bottom: 10px;
+    display: block; /* Make it take full width */
+}
+
+/* Toast Notification */
+.toast-notification {
+    visibility: hidden; /* Hidden by default */
+    min-width: 250px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 5px;
+    padding: 16px;
+    position: fixed;
+    z-index: 100;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 30px;
+    font-size: 17px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: visibility 0s, opacity 0.5s ease-in-out;
+}
+
+.toast-notification.success { background-color: #28a745; } /* Green */
+.toast-notification.error { background-color: #dc3545; }   /* Red */
+.toast-notification.warning { background-color: #ffc107; color: #333;} /* Yellow */
+.toast-notification.info { background-color: #17a2b8; }    /* Blue */
+
+.toast-notification.show {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Undo Notification */
+.undo-notification {
+    visibility: hidden;
+    min-width: 300px;
+    background-color: #007bff;
+    color: #fff;
+    text-align: center;
+    border-radius: 5px;
+    padding: 10px;
+    position: fixed;
+    z-index: 101; /* Higher than toast */
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 90px; /* Above toast */
+    opacity: 0;
+    transition: visibility 0s, opacity 0.5s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.undo-notification button {
+    background-color: rgba(255, 255, 255, 0.3);
+    color: white;
+    border: 1px solid white;
+    padding: 5px 10px;
+    margin-left: 15px;
+    font-size: 0.9em;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.undo-notification button:hover {
+    background-color: rgba(255, 255, 255, 0.5);
+}
+.undo-notification.show {
+    visibility: visible;
+    opacity: 1;
+}
+
+
+/* Goal status / completion */
+.goal.completed-goal {
+    border-left: 5px solid #28a745; /* Green border for completed */
+    opacity: 0.8;
+}
+
+.goal-completed-text {
+    color: #28a745; /* Green text for completed goal name */
+    font-weight: bold;
+}
+
+.progress-bar.completed-bar .progress {
+    background-color: #28a745; /* Darker green for full bar */
+}
+
+/* Confetti-like animation (simple CSS only) */
+@keyframes confetti-pop {
+    0% { transform: scale(0) rotate(0deg); opacity: 0; }
+    50% { transform: scale(1.2) rotate(180deg); opacity: 1; }
+    100% { transform: scale(1) rotate(360deg); opacity: 0; }
+}
+
+.goal.confetti-animation::before,
+.goal.confetti-animation::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, transparent 20%, rgba(255,223,0,0.7) 20%, transparent 40%),
+                radial-gradient(circle, transparent 20%, rgba(0,191,255,0.7) 20%, transparent 40%),
+                radial-gradient(circle, transparent 20%, rgba(255,0,0,0.7) 20%, transparent 40%);
+    background-size: 20px 20px;
+    animation: confetti-pop 1.5s forwards;
+    pointer-events: none;
+    z-index: 10;
+}
+/* You'd need more complex CSS or JS for a proper confetti effect */
+
+
+input[type="text"],
+input[type="number"],
+input[type="date"],
+input[type="time"],
+select {
+  padding: 8px;
+  margin: 5px 0 10px 0; /* Adjusted margin-bottom */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: calc(100% - 18px); /* Adjust width for padding/border */
+  max-width: 300px; /* Limit input width */
+  box-sizing: border-box; /* Include padding and border in the element's total width and height */
+  display: block; /* Make inputs take full width on new line */
+}
+
+body.dark-mode input[type="text"],
+body.dark-mode input[type="number"],
+body.dark-mode input[type="date"],
+body.dark-mode input[type="time"],
+body.dark-mode select {
+  background-color: #3a3a3a;
+  color: #ffffff;
+  border-color: #555;
+}
+
+button {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+  margin-right: 10px;
+  transition: background-color 0.2s ease;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+body.dark-mode button {
+  background-color: #6a6a6a;
+}
+
+body.dark-mode button:hover {
+  background-color: #888;
+}
+
+.utility-buttons {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+  text-align: center;
+}
+
+body.dark-mode .utility-buttons {
+  border-top-color: #444;
+}
+
+.utility-buttons input[type="file"] {
+    display: inline-block; /* Make file input inline with buttons */
+    margin-left: 10px;
+    margin-top: 10px;
+    border: none; /* Remove border for file input */
+    padding: 0; /* Remove padding */
+    width: auto; /* Auto width */
+}
+
+.delete-goal-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: #dc3545; /* Red color for delete */
+  color: white;
+  border: none;
+  border-radius: 50%; /* Make it round */
+  width: 28px; /* Slightly larger */
+  height: 28px; /* Slightly larger */
+  font-size: 18px; /* Larger 'x' */
+  line-height: 1; /* Center the 'x' vertically */
+  text-align: center;
+  cursor: pointer;
+  padding: 0; /* Remove default padding */
+  transition: background-color 0.2s ease;
+  display: flex; /* Use flexbox for perfect centering */
+  justify-content: center;
+  align-items: center;
+  z-index: 10; /* Ensure it's above other elements */
+}
+
+.delete-goal-btn:hover {
+  background-color: #c82333;
+}
+
+body.dark-mode .delete-goal-btn {
+    background-color: #a00;
+}
+
+body.dark-mode .delete-goal-btn:hover {
+    background-color: #b00;
+}
+
+.history-display {
+    background-color: #f8f8f8;
+    border: 1px dashed #ddd;
+    padding: 10px;
+    margin-top: 15px;
+    border-radius: 5px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+body.dark-mode .history-display {
+    background-color: #3a3a3a;
+    border-color: #555;
+}
+
+.history-display ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.history-display li {
+    padding: 5px 0;
+    border-bottom: 1px dotted #eee;
+}
+
+body.dark-mode .history-display li {
+    border-bottom-color: #4a4a4a;
+}
+
+.history-display li:last-child {
+    border-bottom: none;
+}
+
+.no-goals-message {
+    text-align: center;
+    color: #666;
+    margin-top: 50px;
+    font-style: italic;
+}
+
+body.dark-mode .no-goals-message {
+    color: #aaa;
+}
+
+/* Due Date Styles */
+.due-date {
+    font-size: 0.9em;
+    color: #555;
+    margin-bottom: 5px;
+}
+
+.due-date.overdue {
+    color: #dc3545; /* Red for overdue */
+    font-weight: bold;
+}
+
+.due-date.approaching-due {
+    color: #ffc107; /* Orange/Yellow for approaching */
+    font-weight: bold;
+}
+
+/* Boolean Goal Styles */
+.status-boolean {
+    font-weight: bold;
+}
+
+.status-boolean.completed {
+    color: #28a745;
+}
+
+.status-boolean.incomplete {
+    color: #dc3545;
+}
+
+.checkbox-container {
+    display: block; /* Takes full width */
+    position: relative;
+    padding-left: 25px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    font-size: 1em;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Hide the browser's default checkbox */
+.checkbox-container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+/* Create a custom checkbox */
+.checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 20px;
+    width: 20px;
+    background-color: #eee;
+    border-radius: 3px;
+    border: 1px solid #ccc;
+}
+
+/* On mouse-over, add a grey background color */
+.checkbox-container:hover input ~ .checkmark {
+    background-color: #ccc;
+}
+
+/* When the checkbox is checked, add a blue background */
+.checkbox-container input:checked ~ .checkmark {
+    background-color: #4CAF50;
+    border-color: #4CAF50;
+}
+
+/* Create the checkmark/indicator (hidden when not checked) */
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+/* Show the checkmark when checked */
+.checkbox-container input:checked ~ .checkmark:after {
+    display: block;
+}
+
+/* Style the checkmark/indicator */
+.checkbox-container .checkmark:after {
+    left: 7px;
+    top: 3px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 3px 3px 0;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+}
+
+body.dark-mode .checkmark {
+    background-color: #555;
+    border-color: #777;
+}
+
+body.dark-mode .checkbox-container:hover input ~ .checkmark {
+    background-color: #666;
+}
+
+body.dark-mode .checkbox-container input:checked ~ .checkmark {
+    background-color: #3e8e41; /* Darker green */
+    border-color: #3e8e41;
+}
+
+/* Reminder Section */
+.reminder-section {
+    background-color: #f0f0f0;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    padding: 10px;
+    margin-top: 15px;
+    font-size: 0.9em;
+}
+
+body.dark-mode .reminder-section {
+    background-color: #333;
+    border-color: #555;
+}
+
+.reminder-section h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #444;
+}
+body.dark-mode .reminder-section h4 {
+    color: #bbb;
+}
+
+.reminder-section label {
+    display: block;
+    margin-bottom: 5px;
+}
+.reminder-section input[type="time"] {
+    width: auto;
+    display: inline-block;
+    margin-right: 10px;
+}
+.reminder-section button {
+    padding: 5px 10px;
+    font-size: 0.85em;
+    margin-top: 5px;
+}
+
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
